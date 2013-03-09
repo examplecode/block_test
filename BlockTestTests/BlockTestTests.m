@@ -153,7 +153,7 @@ MyBlock genMyBlock() {
     };
     
      NSLog(@"block hash = %d",[block hash]);
-    return [block copy];
+    return block;
 }
 
 - (void)testBlockExample6
