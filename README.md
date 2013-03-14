@@ -81,3 +81,61 @@ block在引用外部的基本类型时，仅仅是把当前的值，传递到blo
    
 }
 ```
+## 测试对象在block中的引用情况 ##
+对于普通对象，被在栈中分配的block引用，retain不变，但是被在堆中分配的block引用会 retain +1 . ([block copy] 方法会使block在堆中分配) 参考下面的代码片段
+
+
+```objective-c
+//测试一个对象在Block中引用情况
+- (void)testBlockExample4
+{
+    NSObject * obj = [[NSObject alloc] init];
+    
+    NSLog(@"====  obj id: %d retain]= %d ======",obj.hash,[obj retainCount]);
+    
+    void (^myblock) (void) = ^(void) {
+         NSLog(@"==== [in block] obj id: %d retain]= %d ======",obj.hash,[obj retainCount]);
+
+     } ;
+    
+    myblock();
+    
+    //使用copy 使block的内存分配在堆上
+    void (^myblock1) (void) = [myblock copy];
+    
+    //分配在堆上的block对对象的引用，会使retain +1 
+    myblock1();
+    
+
+}
+```
+## 对象在block中的引用情况，使用 __block 关键字 ##
+
+如果使用 __block 关键字修饰被block引用的 对象，无论block在堆中分配还是在栈中分配，对象的 retain都不会改变。如下代码所示
+
+```objective-c
+//使用 __block关键字 声明的的对象在block中引用 retain不会改变。
+- (void)testBlockExample5
+{
+    __block NSObject * obj = [[NSObject alloc] init];
+    
+    NSLog(@"====  obj id: %d retain]= %d ======",obj.hash,[obj retainCount]);
+    
+    void (^myblock) (void) = ^(void) {
+        NSLog(@"==== [in block] obj id: %d retain]= %d ======",obj.hash,[obj retainCount]);
+        
+    } ;
+    
+    myblock();
+    
+    //使用copy 使block的内存分配在堆上
+    void (^myblock1) (void) = [myblock copy];
+    
+    //使用 __block 关键字声明的对象 retain 不会改变
+    myblock1();
+    
+    
+}
+```
+
+
